@@ -1,0 +1,242 @@
+{% extends 'base.html' %} {% block title %}Dashboard - PharmaTrack{% endblock %}
+{% block content %}
+<!-- Welcome Section -->
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card bg-primary text-white">
+      <div class="card-body">
+        <h2 class="card-title">
+          <i class="bi bi-house-heart"></i> Welcome back, {{ user.username }}!
+        </h2>
+        <p class="card-text">
+          Manage your medicine inventory efficiently with PharmaTrack.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+  <div class="col-md-3 mb-3">
+    <div class="card dashboard-card text-center h-100">
+      <div class="card-body">
+        <div class="display-6 text-primary mb-2">
+          <i class="bi bi-capsule"></i>
+        </div>
+        <h3 class="card-title text-primary">{{ total_medicines }}</h3>
+        <p class="card-text">Total Medicines</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3 mb-3">
+    <div class="card dashboard-card text-center h-100">
+      <div class="card-body">
+        <div class="display-6 text-danger mb-2">
+          <i class="bi bi-exclamation-triangle"></i>
+        </div>
+        <h3 class="card-title text-danger">{{ expired_medicines }}</h3>
+        <p class="card-text">Expired Medicines</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3 mb-3">
+    <div class="card dashboard-card text-center h-100">
+      <div class="card-body">
+        <div class="display-6 text-warning mb-2">
+          <i class="bi bi-clock"></i>
+        </div>
+        <h3 class="card-title text-warning">{{ expiring_soon }}</h3>
+        <p class="card-text">Expiring Soon</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3 mb-3">
+    <div class="card dashboard-card text-center h-100">
+      <div class="card-body">
+        <div class="display-6 text-info mb-2">
+          <i class="bi bi-arrow-down-circle"></i>
+        </div>
+        <h3 class="card-title text-info">{{ low_stock }}</h3>
+        <p class="card-text">Low Stock Items</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="bi bi-lightning"></i> Quick Actions</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-3 mb-2">
+            <a href="{% url 'add_medicine' %}" class="btn btn-primary w-100">
+              <i class="bi bi-plus-circle"></i> Add Medicine
+            </a>
+          </div>
+          <div class="col-md-3 mb-2">
+            <a
+              href="{% url 'medicine_list' %}"
+              class="btn btn-outline-primary w-100"
+            >
+              <i class="bi bi-list-ul"></i> View All Medicines
+            </a>
+          </div>
+          <div class="col-md-3 mb-2">
+            <a href="{% url 'alerts' %}" class="btn btn-outline-warning w-100">
+              <i class="bi bi-exclamation-triangle"></i> View Alerts
+            </a>
+          </div>
+          <div class="col-md-3 mb-2">
+            <a
+              href="{% url 'medicine_list' %}?filter=low_stock"
+              class="btn btn-outline-info w-100"
+            >
+              <i class="bi bi-arrow-down-circle"></i> Low Stock
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Medicines and Alerts -->
+<div class="row">
+  <!-- Recent Medicines -->
+  <div class="col-md-6 mb-4">
+    <div class="card h-100">
+      <div
+        class="card-header d-flex justify-content-between align-items-center"
+      >
+        <h5 class="mb-0">
+          <i class="bi bi-clock-history"></i> Recent Medicines
+        </h5>
+        <a
+          href="{% url 'medicine_list' %}"
+          class="btn btn-sm btn-outline-primary"
+          >View All</a
+        >
+      </div>
+      <div class="card-body">
+        {% if recent_medicines %}
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Quantity</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for medicine in recent_medicines %}
+              <tr>
+                <td>
+                  <a
+                    href="{% url 'edit_medicine' medicine.pk %}"
+                    class="text-decoration-none"
+                  >
+                    {{ medicine.name }}
+                  </a>
+                </td>
+                <td>{{ medicine.quantity }}</td>
+                <td>
+                  <span
+                    class="status-badge status-{{ medicine.expiry_status }}"
+                  >
+                    {% if medicine.is_expired %} Expired {% elif medicine.is_expiring_soon %} Expiring Soon {% else %} Good
+                    {% endif %}
+                  </span>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-4">
+          <i class="bi bi-inbox display-4"></i>
+          <p class="mt-2">No medicines added yet.</p>
+          <a href="{% url 'add_medicine' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Add Your First Medicine
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Alerts Overview -->
+  <div class="col-md-6 mb-4">
+    <div class="card h-100">
+      <div
+        class="card-header d-flex justify-content-between align-items-center"
+      >
+        <h5 class="mb-0">
+          <i class="bi bi-exclamation-triangle"></i> Alerts Overview
+        </h5>
+        <a href="{% url 'alerts' %}" class="btn btn-sm btn-outline-warning"
+          >View All</a
+        >
+      </div>
+      <div class="card-body">
+        <!-- Expired Medicines -->
+        {% if expired_list %}
+        <div class="alert alert-expired mb-3">
+          <h6 class="alert-heading">
+            <i class="bi bi-x-circle"></i> Expired Medicines ({{ expired_list|length }})
+          </h6>
+          <ul class="mb-0">
+            {% for medicine in expired_list %}
+            <li>{{ medicine.name }} - Expired on {{ medicine.expiry_date }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+
+        <!-- Expiring Soon -->
+        {% if expiring_soon_list %}
+        <div class="alert alert-expiring-soon mb-3">
+          <h6 class="alert-heading">
+            <i class="bi bi-clock"></i> Expiring Soon ({{ expiring_soon_list|length }})
+          </h6>
+          <ul class="mb-0">
+            {% for medicine in expiring_soon_list %}
+            <li>{{ medicine.name }} - Expires on {{ medicine.expiry_date }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+
+        <!-- Low Stock -->
+        {% if low_stock_list %}
+        <div class="alert alert-low-stock mb-3">
+          <h6 class="alert-heading">
+            <i class="bi bi-arrow-down-circle"></i> Low Stock ({{low_stock_list|length }})
+          </h6>
+          <ul class="mb-0">
+            {% for medicine in low_stock_list %}
+            <li>{{ medicine.name }} - {{ medicine.quantity }} remaining</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %} 
+        {% if not expired_list and not expiring_soon_list and not low_stock_list %}
+        <div class="text-center text-muted py-4">
+          <i class="bi bi-check-circle display-4 text-success"></i>
+          <p class="mt-2">All good! No alerts at the moment.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

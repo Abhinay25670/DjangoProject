@@ -1,0 +1,61 @@
+{% extends 'base.html' %} {% block title %}Delete Medicine - PharmaTrack{%
+endblock %} {% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card shadow border-danger">
+      <div class="card-header bg-danger text-white">
+        <h4 class="mb-0">
+          <i class="bi bi-exclamation-triangle"></i> Confirm Deletion
+        </h4>
+      </div>
+      <div class="card-body p-4">
+        <div class="alert alert-warning">
+          <h5 class="alert-heading">
+            <i class="bi bi-exclamation-triangle"></i> Warning!
+          </h5>
+          <p class="mb-0">
+            Are you sure you want to delete
+            <strong>"{{ medicine.name }}"</strong>? This action cannot be
+            undone.
+          </p>
+        </div>
+
+        <div class="card mb-3">
+          <div class="card-body">
+            <h6 class="card-title">Medicine Details:</h6>
+            <ul class="list-unstyled mb-0">
+              <li><strong>Name:</strong> {{ medicine.name }}</li>
+              <li>
+                <strong>Batch Number:</strong> {{ medicine.batch_number }}
+              </li>
+              <li>
+                <strong>Manufacturer:</strong> {{ medicine.manufacturer }}
+              </li>
+              <li><strong>Quantity:</strong> {{ medicine.quantity }}</li>
+              <li>
+                <strong>Expiry Date:</strong> {{ medicine.expiry_date|date:"M d,
+                Y" }}
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <form method="post">
+          {% csrf_token %}
+          <div class="d-flex justify-content-between">
+            <a
+              href="{% url 'medicine_list' %}"
+              class="btn btn-outline-secondary"
+            >
+              <i class="bi bi-arrow-left"></i> Cancel
+            </a>
+            <button type="submit" class="btn btn-danger">
+              <i class="bi bi-trash"></i> Delete Medicine
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+
+{% block title %}Medicines - PharmaTrack{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2>
+            <i class="bi bi-capsule"></i> Medicine Inventory
+        </h2>
+        <p class="text-muted">Manage your medicine stock and track expiry dates</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{% url 'add_medicine' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Add Medicine
+        </a>
+    </div>
+</div>
+
+<!-- Search and Filter -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text" name="search" class="form-control" 
+                                   placeholder="Search by name, batch, or manufacturer..." 
+                                   value="{{ search_query }}">
+                            <button type="submit" class="btn btn-outline-primary">Search</button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <select name="filter" class="form-select" onchange="this.form.submit()">
+                            <option value="">All Medicines</option>
+                            <option value="expired" {% if filter_type == 'expired' %}selected{% endif %}>
+                                Expired Medicines
+                            </option>
+                            <option value="expiring_soon" {% if filter_type == 'expiring_soon' %}selected{% endif %}>
+                                Expiring Soon
+                            </option>
+                            <option value="low_stock" {% if filter_type == 'low_stock' %}selected{% endif %}>
+                                Low Stock
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="{% url 'medicine_list' %}" class="btn btn-outline-secondary w-100">
+                            <i class="bi bi-arrow-clockwise"></i> Clear
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Results Summary -->
+{% if search_query or filter_type %}
+<div class="row mb-3">
+    <div class="col-12">
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i>
+            {% if search_query and filter_type %}
+                Showing results for "{{ search_query }}" filtered by {{ filter_type|title }}
+            {% elif search_query %}
+                Showing results for "{{ search_query }}"
+            {% elif filter_type %}
+                Showing medicines filtered by {{ filter_type|title }}
+            {% endif %}
+            <span class="badge bg-primary ms-2">{{ medicines|length }} result{{ medicines|length|pluralize }}</span>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Medicines Table -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body p-0">
+                {% if medicines %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Medicine Name</th>
+                                    <th>Batch Number</th>
+                                    <th>Manufacturer</th>
+                                    <th>Quantity</th>
+                                    <th>Expiry Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for medicine in medicines %}
+                                <tr class="{% if medicine.is_expired %}table-danger{% elif medicine.is_expiring_soon %}table-warning{% elif medicine.is_low_stock %}table-info{% endif %}">
+                                    <td>
+                                        <strong>{{ medicine.name }}</strong>
+                                        {% if medicine.description %}
+                                            <br><small class="text-muted">{{ medicine.description|truncatechars:50 }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ medicine.batch_number }}</td>
+                                    <td>{{ medicine.manufacturer }}</td>
+                                    <td>
+                                        <span class="{% if medicine.is_low_stock %}text-danger fw-bold{% endif %}">
+                                            {{ medicine.quantity }}
+                                        </span>
+                                        {% if medicine.is_low_stock %}
+                                            <br><small class="text-danger">Threshold: {{ medicine.low_stock_threshold }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {{ medicine.expiry_date|date:"M d, Y" }}
+                                        {% if medicine.is_expired %}
+                                            <br><small class="text-danger">Expired {{ medicine.days_until_expiry_abs }} days ago</small>
+                                        {% elif medicine.is_expiring_soon %}
+                                            <br><small class="text-warning">Expires in {{ medicine.days_until_expiry }} days</small>
+                                        {% else %}
+                                            <br><small class="text-success">{{ medicine.days_until_expiry }} days left</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="status-badge status-{{ medicine.expiry_status }}">
+                                            {% if medicine.is_expired %}
+                                                Expired
+                                            {% elif medicine.is_expiring_soon %}
+                                                Expiring Soon
+                                            {% else %}
+                                                Good
+                                            {% endif %}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{% url 'edit_medicine' medicine.pk %}" 
+                                               class="btn btn-sm btn-outline-primary" 
+                                               title="Edit">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <a href="{% url 'delete_medicine' medicine.pk %}" 
+                                               class="btn btn-sm btn-outline-danger" 
+                                               title="Delete">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-inbox display-1 text-muted"></i>
+                        <h4 class="text-muted mt-3">
+                            {% if search_query or filter_type %}
+                                No medicines found matching your criteria.
+                            {% else %}
+                                No medicines added yet.
+                            {% endif %}
+                        </h4>
+                        <p class="text-muted">
+                            {% if search_query or filter_type %}
+                                Try adjusting your search or filter criteria.
+                            {% else %}
+                                Start by adding your first medicine to the inventory.
+                            {% endif %}
+                        </p>
+                        <a href="{% url 'add_medicine' %}" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Add Medicine
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+{% if medicines %}
+<div class="row mt-4">
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title text-primary">{{ medicines|length }}</h5>
+                <p class="card-text">Total Items</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title text-danger">
+                    {{ medicines|dictsort:"is_expired"|dictsortreversed:"is_expired"|slice:":1"|length }}
+                </h5>
+                <p class="card-text">Expired</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title text-warning">
+                    {{ medicines|dictsort:"is_expiring_soon"|dictsortreversed:"is_expiring_soon"|slice:":1"|length }}
+                </h5>
+                <p class="card-text">Expiring Soon</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title text-info">
+                    {{ medicines|dictsort:"is_low_stock"|dictsortreversed:"is_low_stock"|slice:":1"|length }}
+                </h5>
+                <p class="card-text">Low Stock</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %} 

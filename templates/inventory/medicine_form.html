@@ -1,0 +1,228 @@
+{% extends 'base.html' %} {% block title %}{{ title }} - PharmaTrack
+{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <div class="card shadow">
+      <div class="card-header bg-primary text-white">
+        <h4 class="mb-0"><i class="bi bi-capsule"></i> {{ title }}</h4>
+      </div>
+      <div class="card-body p-4">
+        <form method="post">
+          {% csrf_token %}
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="{{ form.name.id_for_label }}" class="form-label">
+                  <i class="bi bi-tag"></i> Medicine Name *
+                </label>
+                {{ form.name }} {% if form.name.errors %}
+                <div class="text-danger small">{{ form.name.errors.0 }}</div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label
+                  for="{{ form.batch_number.id_for_label }}"
+                  class="form-label"
+                >
+                  <i class="bi bi-upc"></i> Batch Number *
+                </label>
+                {{ form.batch_number }} {% if form.batch_number.errors %}
+                <div class="text-danger small">
+                  {{ form.batch_number.errors.0 }}
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label
+              for="{{ form.manufacturer.id_for_label }}"
+              class="form-label"
+            >
+              <i class="bi bi-building"></i> Manufacturer *
+            </label>
+            {{ form.manufacturer }} {% if form.manufacturer.errors %}
+            <div class="text-danger small">
+              {{ form.manufacturer.errors.0 }}
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label
+                  for="{{ form.manufacturing_date.id_for_label }}"
+                  class="form-label"
+                >
+                  <i class="bi bi-calendar-plus"></i> Manufacturing Date *
+                </label>
+                {{ form.manufacturing_date }} 
+                {% if form.manufacturing_date.errors %}
+                <div class="text-danger small">
+                  {{ form.manufacturing_date.errors.0 }}
+                </div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label
+                  for="{{ form.expiry_date.id_for_label }}"
+                  class="form-label"
+                >
+                  <i class="bi bi-calendar-x"></i> Expiry Date *
+                </label>
+                {{ form.expiry_date }} {% if form.expiry_date.errors %}
+                <div class="text-danger small">
+                  {{ form.expiry_date.errors.0 }}
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-4">
+              <div class="mb-3">
+                <label
+                  for="{{ form.quantity.id_for_label }}"
+                  class="form-label"
+                >
+                  <i class="bi bi-box"></i> Quantity *
+                </label>
+                {{ form.quantity }} {% if form.quantity.errors %}
+                <div class="text-danger small">
+                  {{ form.quantity.errors.0 }}
+                </div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="mb-3">
+                <label
+                  for="{{ form.price_per_unit.id_for_label }}"
+                  class="form-label"
+                >
+                  <i class="bi bi-currency-dollar"></i> Price per Unit
+                </label>
+                {{ form.price_per_unit }} {% if form.price_per_unit.errors %}
+                <div class="text-danger small">
+                  {{ form.price_per_unit.errors.0 }}
+                </div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="mb-3">
+                <label
+                  for="{{ form.low_stock_threshold.id_for_label }}"
+                  class="form-label"
+                >
+                  <i class="bi bi-exclamation-triangle"></i> Low Stock Threshold
+                </label>
+                {{ form.low_stock_threshold }}
+                  {% if form.low_stock_threshold.errors %}
+                <div class="text-danger small">
+                  {{ form.low_stock_threshold.errors.0 }}
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="{{ form.description.id_for_label }}" class="form-label">
+              <i class="bi bi-text-paragraph"></i> Description
+            </label>
+            {{ form.description }} {% if form.description.errors %}
+            <div class="text-danger small">{{ form.description.errors.0 }}</div>
+            {% endif %}
+            <div class="form-text">
+              Optional: Add any additional notes about this medicine.
+            </div>
+          </div>
+
+          {% if form.non_field_errors %}
+          <div class="alert alert-danger">
+            {% for error in form.non_field_errors %}
+            <i class="bi bi-exclamation-triangle"></i> {{ error }} {% endfor %}
+          </div>
+          {% endif %}
+
+          <div class="d-flex justify-content-between">
+            <a
+              href="{% url 'medicine_list' %}"
+              class="btn btn-outline-secondary"
+            >
+              <i class="bi bi-arrow-left"></i> Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-check-circle"></i>
+              {% if medicine %}Update{% else %}Add{% endif %} Medicine
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Help Information -->
+    <div class="card mt-4">
+      <div class="card-header">
+        <h6 class="mb-0"><i class="bi bi-info-circle"></i> Form Guidelines</h6>
+      </div>
+      <div class="card-body">
+        <ul class="mb-0">
+          <li>
+            <strong>Medicine Name:</strong> Enter the full name of the medicine
+          </li>
+          <li>
+            <strong>Batch Number:</strong> Unique identifier for this batch
+          </li>
+          <li>
+            <strong>Manufacturing Date:</strong> Date when medicine was
+            manufactured
+          </li>
+          <li>
+            <strong>Expiry Date:</strong> Date when medicine expires (must be
+            after manufacturing date)
+          </li>
+          <li>
+            <strong>Quantity:</strong> Current stock quantity (must be greater
+            than 0)
+          </li>
+          <li>
+            <strong>Low Stock Threshold:</strong> Alert when quantity falls
+            below this number
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .form-control,
+  .form-select {
+    border-radius: 0.375rem;
+  }
+
+  .form-control:focus,
+  .form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+  }
+
+  .form-label {
+    font-weight: 500;
+  }
+
+  .form-text {
+    font-size: 0.875rem;
+  }
+</style>
+{% endblock %}
