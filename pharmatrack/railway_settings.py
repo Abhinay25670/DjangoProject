@@ -141,6 +141,11 @@ SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 
+# Performance optimizations for Railway
+CONN_MAX_AGE = 60
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
+
 # CSRF settings for Railway deployment
 CSRF_TRUSTED_ORIGINS = [
     'https://*.railway.app',
