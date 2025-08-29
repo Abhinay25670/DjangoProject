@@ -11,6 +11,7 @@ from django.utils.html import strip_tags
 from django.urls import reverse
 from django.http import Http404
 from datetime import timedelta
+import os
 from .models import Medicine, UserProfile
 from .forms import UserRegistrationForm, MedicineForm
 from .reports import MedicineReportGenerator
@@ -30,7 +31,14 @@ def send_verification_email(user):
     
     # Create verification URL
     verification_url = reverse('verify_email', kwargs={'token': user.userprofile.email_verification_token})
-    full_url = f"http://127.0.0.1:8000{verification_url}"
+    
+    # Get the base URL from settings or use the request domain
+    base_url = getattr(settings, 'BASE_URL', 'https://your-app-name.railway.app')
+    if not base_url or base_url == 'https://your-app-name.railway.app':
+        # Try to get from environment variable
+        base_url = os.environ.get('BASE_URL', 'https://your-app-name.railway.app')
+    
+    full_url = f"{base_url}{verification_url}"
     
     # Render email template
     html_message = render_to_string('inventory/email/verification_email.html', {
@@ -68,9 +76,11 @@ def register(request):
                 messages.success(request, 'Account created successfully! Please check your email to verify your account before logging in.')
                 return redirect('login')
             except Exception as e:
+                # Log the error for debugging
+                print(f"Email sending failed: {str(e)}")
                 # If email fails, delete the user and show error
                 user.delete()
-                messages.error(request, 'Failed to send verification email. Please try again or contact support.')
+                messages.error(request, f'Failed to send verification email: {str(e)}. Please check your email configuration or contact support.')
                 return render(request, 'inventory/register.html', {'form': form})
     else:
         form = UserRegistrationForm()
