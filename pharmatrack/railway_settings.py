@@ -1,5 +1,6 @@
 """
-Production settings for pharmatrack project.
+Railway-specific settings for pharmatrack project.
+This file handles Railway's health check requirements.
 """
 
 import os
@@ -15,8 +16,18 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-change-this-in-produc
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
-# Allowed hosts for production
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,healthcheck.railway.app').split(',')
+# Allowed hosts for Railway deployment
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'healthcheck.railway.app',  # Railway health check
+    '.railway.app',  # All Railway subdomains
+    '.up.railway.app',  # Railway deployment URLs
+]
+
+# Add custom domain if provided
+if os.environ.get('ALLOWED_HOSTS'):
+    ALLOWED_HOSTS.extend(os.environ.get('ALLOWED_HOSTS').split(','))
 
 # Application definition
 INSTALLED_APPS = [
@@ -153,12 +164,6 @@ LOGGING = {
         },
     },
     'handlers': {
-        'file': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': BASE_DIR / 'logs' / 'django.log',
-            'formatter': 'verbose',
-        },
         'console': {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
@@ -166,25 +171,17 @@ LOGGING = {
         },
     },
     'root': {
-        'handlers': ['console', 'file'],
+        'handlers': ['console'],
         'level': 'INFO',
     },
     'loggers': {
         'django': {
-            'handlers': ['console', 'file'],
+            'handlers': ['console'],
             'level': 'INFO',
             'propagate': False,
         },
     },
 }
-
-# Cache configuration (optional - for better performance)
-# CACHES = {
-#     'default': {
-#         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-#         'LOCATION': os.environ.get('REDIS_URL', 'redis://127.0.0.1:6379/1'),
-#     }
-# }
 
 # Session configuration
 SESSION_COOKIE_AGE = 86400  # 24 hours
