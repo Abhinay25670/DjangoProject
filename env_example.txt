@@ -5,6 +5,7 @@
 SECRET_KEY=your-very-secure-secret-key-here
 DEBUG=False
 ALLOWED_HOSTS=localhost,127.0.0.1,your-domain.com,healthcheck.railway.app
+CSRF_TRUSTED_ORIGINS=https://your-domain.com,https://your-app.railway.app
 
 # Database Configuration
 # For PostgreSQL (Production)

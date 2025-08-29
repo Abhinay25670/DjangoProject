@@ -130,6 +130,23 @@ SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 
+# CSRF settings for production deployment
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.railway.app',
+    'https://*.up.railway.app',
+    'https://*.herokuapp.com',
+    'https://*.ondigitalocean.app',
+]
+
+# Add custom domain if provided
+if os.environ.get('CSRF_TRUSTED_ORIGINS'):
+    CSRF_TRUSTED_ORIGINS.extend(os.environ.get('CSRF_TRUSTED_ORIGINS').split(','))
+
+# CSRF cookie settings
+CSRF_COOKIE_SECURE = False  # Set to True when using HTTPS
+CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_SAMESITE = 'Lax'
+
 # HTTPS settings (uncomment when using HTTPS)
 # SECURE_SSL_REDIRECT = True
 # SESSION_COOKIE_SECURE = True
