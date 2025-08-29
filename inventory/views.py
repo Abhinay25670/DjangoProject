@@ -13,6 +13,7 @@ from django.http import Http404
 from datetime import timedelta
 from .models import Medicine, UserProfile
 from .forms import UserRegistrationForm, MedicineForm
+from .reports import MedicineReportGenerator
 from django.conf import settings
 
 def get_or_create_user_profile(user):
@@ -295,3 +296,54 @@ def alerts(request):
         'low_stock_medicines': low_stock_medicines,
     }
     return render(request, 'inventory/alerts.html', context)
+
+@login_required
+def reports(request):
+    """Reports page with download options"""
+    # Check if user's email is verified
+    profile = get_or_create_user_profile(request.user)
+    if not profile.email_verified:
+        messages.warning(request, 'Please verify your email address to access all features.')
+        return redirect('resend_verification')
+    
+    # Get summary statistics
+    report_generator = MedicineReportGenerator(request.user)
+    summary = report_generator.get_inventory_summary()
+    
+    context = {
+        'summary': summary,
+    }
+    return render(request, 'inventory/reports.html', context)
+
+@login_required
+def download_report(request, report_type, format_type):
+    """Download report in specified format"""
+    # Check if user's email is verified
+    profile = get_or_create_user_profile(request.user)
+    if not profile.email_verified:
+        messages.warning(request, 'Please verify your email address to access all features.')
+        return redirect('resend_verification')
+    
+    # Validate report type
+    valid_report_types = ['all', 'expired', 'expiring_soon', 'low_stock', 'active']
+    if report_type not in valid_report_types:
+        messages.error(request, 'Invalid report type.')
+        return redirect('reports')
+    
+    # Validate format type
+    valid_formats = ['pdf', 'excel']
+    if format_type not in valid_formats:
+        messages.error(request, 'Invalid format type.')
+        return redirect('reports')
+    
+    # Generate report
+    report_generator = MedicineReportGenerator(request.user)
+    
+    try:
+        if format_type == 'excel':
+            return report_generator.generate_excel_report(report_type)
+        elif format_type == 'pdf':
+            return report_generator.generate_pdf_report(report_type)
+    except Exception as e:
+        messages.error(request, f'Error generating report: {str(e)}')
+        return redirect('reports')

@@ -24,4 +24,8 @@ urlpatterns = [
     
     # Alerts
     path('alerts/', views.alerts, name='alerts'),
+    
+    # Reports
+    path('reports/', views.reports, name='reports'),
+    path('reports/download/<str:report_type>/<str:format_type>/', views.download_report, name='download_report'),
 ] 

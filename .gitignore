@@ -129,29 +129,19 @@ dmypy.json
 .pyre/
 
 # Django specific
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-
-# Django migrations (optional - uncomment if you want to ignore migrations)
-# */migrations/*.py
-# !*/migrations/__init__.py
-
-# Media files (if using Django)
-media/
-
-# Static files (if using Django)
 staticfiles/
+media/
+logs/
+*.log
 
-# IDE specific files
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# OS generated files
+# OS
 .DS_Store
 .DS_Store?
 ._*
@@ -160,67 +150,27 @@ staticfiles/
 ehthumbs.db
 Thumbs.db
 
-# Windows
-*.lnk
-
-# Email and sensitive configuration
-# Add your email configuration files here
-email_config.py
-email_settings.py
+# Local development
+local_settings.py
 .env.local
-.env.production
 .env.development
+.env.production
 
-# App passwords and credentials
-app_passwords.txt
-credentials.txt
-gmail_app_password.txt
-email_credentials.py
+# Database
+*.sqlite3
+*.db
 
-# Database backups
-*.sql
-*.sqlite3.backup
-*.db.backup
+# Static files
+/static/
+/staticfiles/
 
-# Log files
-logs/
+# Media files
+/media/
+
+# Logs
+/logs/
 *.log
 
 # Temporary files
-tmp/
-temp/
 *.tmp
-
-# Backup files
-*.bak
-*.backup
-
-# Configuration files with sensitive data
-config.py
-settings_local.py
-local_config.py
-
-# API keys and secrets
-secrets.json
-api_keys.py
-secrets.py
-
-# SSL certificates
-*.pem
-*.key
-*.crt
-*.csr
-
-# Node modules (if using any frontend tools)
-node_modules/
-
-# Compiled CSS/JS
-*.css.map
-*.js.map
-
-# Package lock files (if using npm/yarn)
-package-lock.json
-yarn.lock
-
-# Ignore Django settings file with email credentials
-pharmatrack/settings.py 
+*.temp

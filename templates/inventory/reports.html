@@ -1,0 +1,205 @@
+{% extends 'base.html' %} {% block title %}Reports - PharmaTrack{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-file-earmark-text"></i> Medicine Reports</h2>
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-primary">
+          <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card text-center dashboard-card">
+        <div class="card-body">
+          <h5 class="card-title text-primary">
+            <i class="bi bi-capsule"></i> Total Medicines
+          </h5>
+          <h2 class="text-primary">{{ summary.total_medicines }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center dashboard-card">
+        <div class="card-body">
+          <h5 class="card-title text-danger">
+            <i class="bi bi-exclamation-triangle"></i> Expired
+          </h5>
+          <h2 class="text-danger">{{ summary.expired_medicines }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center dashboard-card">
+        <div class="card-body">
+          <h5 class="card-title text-warning">
+            <i class="bi bi-clock"></i> Expiring Soon
+          </h5>
+          <h2 class="text-warning">{{ summary.expiring_soon }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center dashboard-card">
+        <div class="card-body">
+          <h5 class="card-title text-info">
+            <i class="bi bi-exclamation-circle"></i> Low Stock
+          </h5>
+          <h2 class="text-info">{{ summary.low_stock }}</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Report Download Form -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="mb-0"><i class="bi bi-download"></i> Download Report</h4>
+        </div>
+        <div class="card-body">
+          <form method="GET" action="" id="reportForm">
+            <div class="row">
+              <div class="col-md-5">
+                <label for="reportType" class="form-label">
+                  <i class="bi bi-list-ul"></i> Report Type
+                </label>
+                <select
+                  class="form-select"
+                  id="reportType"
+                  name="report_type"
+                  required
+                >
+                  <option value="">Select Report Type</option>
+                  <option value="all">All Medicines</option>
+                  <option value="expired">Expired Medicines</option>
+                  <option value="expiring_soon">Expiring Soon</option>
+                  <option value="low_stock">Low Stock</option>
+                  <option value="active">Active Medicines</option>
+                </select>
+              </div>
+              <div class="col-md-5">
+                <label for="formatType" class="form-label">
+                  <i class="bi bi-file-earmark"></i> Format
+                </label>
+                <select
+                  class="form-select"
+                  id="formatType"
+                  name="format_type"
+                  required
+                >
+                  <option value="">Select Format</option>
+                  <option value="pdf">PDF Format</option>
+                  <option value="excel">Excel Format</option>
+                </select>
+              </div>
+              <div class="col-md-2 d-flex align-items-end">
+                <button
+                  type="submit"
+                  class="btn btn-primary w-100"
+                  id="downloadBtn"
+                  disabled
+                >
+                  <i class="bi bi-download"></i> Download
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Report Information -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="bi bi-info-circle"></i> Report Information
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <h6><i class="bi bi-list-ul text-primary"></i> Report Types</h6>
+              <ul class="list-unstyled">
+                <li>
+                  <strong>All Medicines:</strong> Complete inventory with all
+                  medicines
+                </li>
+                <li>
+                  <strong>Expired Medicines:</strong> Medicines past their
+                  expiry date
+                </li>
+                <li>
+                  <strong>Expiring Soon:</strong> Medicines expiring within 30
+                  days
+                </li>
+                <li>
+                  <strong>Low Stock:</strong> Medicines below stock threshold
+                </li>
+                <li>
+                  <strong>Active Medicines:</strong> Good condition medicines
+                </li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <h6>
+                <i class="bi bi-file-earmark text-success"></i> Format Options
+              </h6>
+              <ul class="list-unstyled">
+                <li>
+                  <strong>PDF Format:</strong> Professional formatted reports
+                  with summary
+                </li>
+                <li>
+                  <strong>Excel Format:</strong> Full data with color-coded
+                  formatting
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const reportType = document.getElementById("reportType");
+    const formatType = document.getElementById("formatType");
+    const downloadBtn = document.getElementById("downloadBtn");
+    const reportForm = document.getElementById("reportForm");
+
+    function checkForm() {
+      if (reportType.value && formatType.value) {
+        downloadBtn.disabled = false;
+      } else {
+        downloadBtn.disabled = true;
+      }
+    }
+
+    reportType.addEventListener("change", checkForm);
+    formatType.addEventListener("change", checkForm);
+
+    reportForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const reportTypeValue = reportType.value;
+      const formatTypeValue = formatType.value;
+
+      if (reportTypeValue && formatTypeValue) {
+        const url = `/reports/download/${reportTypeValue}/${formatTypeValue}/`;
+        window.location.href = url;
+      }
+    });
+  });
+</script>
+{% endblock %}

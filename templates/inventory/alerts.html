@@ -30,9 +30,7 @@
         <div class="display-6 text-warning mb-2">
           <i class="bi bi-clock"></i>
         </div>
-        <h3 class="card-title text-warning">
-          {{ expiring_soon_medicines|length }}
-        </h3>
+        <h3 class="card-title text-warning">{{ expiring_soon_medicines|length }}</h3>
         <p class="card-text">Expiring Soon</p>
       </div>
     </div>
@@ -129,8 +127,7 @@
     <div class="card border-warning">
       <div class="card-header bg-warning text-dark">
         <h5 class="mb-0">
-          <i class="bi bi-clock"></i> Expiring Soon ({{
-          expiring_soon_medicines|length }})
+          <i class="bi bi-clock"></i> Expiring Soon ({{ expiring_soon_medicines|length }})
         </h5>
       </div>
       <div class="card-body p-0">
@@ -158,16 +155,13 @@
                 <td>{{ medicine.batch_number }}</td>
                 <td>
                   <span
-                    class="{% if medicine.is_low_stock %}text-danger fw-bold{% endif %}"
-                  >
+                    class="{% if medicine.is_low_stock %}text-danger fw-bold{% endif %}">
                     {{ medicine.quantity }}
                   </span>
                 </td>
                 <td>{{ medicine.expiry_date|date:"M d, Y" }}</td>
                 <td>
-                  <span class="badge bg-warning text-dark"
-                    >{{ medicine.days_until_expiry }} days</span
-                  >
+                  <span class="badge bg-warning text-dark">{{ medicine.days_until_expiry }} days</span>
                 </td>
                 <td>
                   <div class="btn-group" role="group">
@@ -203,8 +197,7 @@
     <div class="card border-info">
       <div class="card-header bg-info text-white">
         <h5 class="mb-0">
-          <i class="bi bi-arrow-down-circle"></i> Low Stock Items ({{
-          low_stock_medicines|length }})
+          <i class="bi bi-arrow-down-circle"></i> Low Stock Items ({{ low_stock_medicines|length }})
         </h5>
       </div>
       <div class="card-body p-0">
@@ -226,9 +219,7 @@
               <tr>
                 <td>
                   <strong>{{ medicine.name }}</strong>
-                  <br /><small class="text-muted"
-                    >{{ medicine.manufacturer }}</small
-                  >
+                  <br /><small class="text-muted">{{ medicine.manufacturer }}</small>
                 </td>
                 <td>{{ medicine.batch_number }}</td>
                 <td>
@@ -242,8 +233,7 @@
                   <span
                     class="status-badge status-{{ medicine.expiry_status }}"
                   >
-                    {% if medicine.is_expired %} Expired {% elif
-                    medicine.is_expiring_soon %} Expiring Soon {% else %} Good
+                    {% if medicine.is_expired %} Expired {% elif medicine.is_expiring_soon %} Expiring Soon {% else %} Good
                     {% endif %}
                   </span>
                 </td>
