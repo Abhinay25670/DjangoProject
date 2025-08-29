@@ -125,8 +125,20 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 
 # Email Configuration for Production
-# Use console backend for debugging if no email credentials are provided
-if os.environ.get('EMAIL_HOST_USER') and os.environ.get('EMAIL_HOST_PASSWORD'):
+# Try SendGrid first (works better with Railway), then Gmail, then console fallback
+
+# Option 1: SendGrid (Recommended for Railway)
+if os.environ.get('SENDGRID_API_KEY'):
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp.sendgrid.net'
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = 'apikey'
+    EMAIL_HOST_PASSWORD = os.environ.get('SENDGRID_API_KEY')
+    DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@pharmatrack.com')
+
+# Option 2: Gmail SMTP (may have network issues on Railway)
+elif os.environ.get('EMAIL_HOST_USER') and os.environ.get('EMAIL_HOST_PASSWORD'):
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
     EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
@@ -134,8 +146,9 @@ if os.environ.get('EMAIL_HOST_USER') and os.environ.get('EMAIL_HOST_PASSWORD'):
     EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
     EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
     DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
+
+# Option 3: Console backend for debugging (always works)
 else:
-    # Fallback to console backend for debugging
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
     EMAIL_HOST_USER = 'debug@example.com'
     DEFAULT_FROM_EMAIL = 'debug@example.com'

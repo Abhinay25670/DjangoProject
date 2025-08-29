@@ -78,10 +78,19 @@ def register(request):
             except Exception as e:
                 # Log the error for debugging
                 print(f"Email sending failed: {str(e)}")
-                # If email fails, delete the user and show error
-                user.delete()
-                messages.error(request, f'Failed to send verification email: {str(e)}. Please check your email configuration or contact support.')
-                return render(request, 'inventory/register.html', {'form': form})
+                
+                # Check if it's a network error (common with Railway + Gmail)
+                if "Network is unreachable" in str(e) or "Connection refused" in str(e):
+                    # For network errors, activate user anyway and show warning
+                    user.is_active = True
+                    user.save()
+                    messages.warning(request, 'Account created successfully! However, we could not send a verification email due to network issues. You can log in directly, but please verify your email later.')
+                    return redirect('login')
+                else:
+                    # For other errors, delete the user and show error
+                    user.delete()
+                    messages.error(request, f'Failed to send verification email: {str(e)}. Please try again or contact support.')
+                    return render(request, 'inventory/register.html', {'form': form})
     else:
         form = UserRegistrationForm()
     return render(request, 'inventory/register.html', {'form': form})
