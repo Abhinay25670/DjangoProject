@@ -57,7 +57,8 @@ def send_verification_email(user):
         print(f"Email user: {settings.EMAIL_HOST_USER}")
         
         try:
-            send_mail(
+            print(f"About to call send_mail...")
+            result = send_mail(
                 subject=subject,
                 message=plain_message,
                 from_email=settings.DEFAULT_FROM_EMAIL,
@@ -66,9 +67,11 @@ def send_verification_email(user):
                 fail_silently=False,
             )
             print(f"✅ Email sent successfully to: {user.email}")
+            print(f"✅ Send result: {result}")
         except Exception as email_error:
             print(f"❌ Email sending failed: {str(email_error)}")
             print(f"❌ Error type: {type(email_error).__name__}")
+            print(f"❌ Full error details: {repr(email_error)}")
             raise email_error
         
         # Update sent timestamp

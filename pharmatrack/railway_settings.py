@@ -137,6 +137,7 @@ if os.environ.get('SENDGRID_API_KEY'):
     EMAIL_HOST_PASSWORD = os.environ.get('SENDGRID_API_KEY')
     DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@pharmatrack.com')
     print(f"SendGrid configured - From: {DEFAULT_FROM_EMAIL}")
+    print(f"SendGrid API Key: {os.environ.get('SENDGRID_API_KEY')[:10]}...")
 
 # Fallback to Gmail SMTP (may have network issues on Railway)
 elif os.environ.get('EMAIL_HOST_USER') and os.environ.get('EMAIL_HOST_PASSWORD'):
