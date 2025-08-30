@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Email Verification - PharmaTrack{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white text-center">
+                    <h3><i class="fas fa-check-circle"></i> Account Created Successfully!</h3>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-envelope-open-text fa-4x text-success mb-3"></i>
+                        <h5>Check Your Email</h5>
+                        <p class="text-muted">
+                            We've sent a 6-digit verification code to:<br>
+                            <strong>{{ user.email }}</strong>
+                        </p>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Next Step:</strong> Please check your email and enter the verification code below.
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <a href="{{ verification_url }}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-shield-alt"></i> Enter Verification Code
+                        </a>
+                    </div>
+
+                    <hr>
+
+                    <div class="text-center">
+                        <p class="text-muted mb-2">Didn't receive the code?</p>
+                        <a href="{% url 'resend_otp' user.id %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-redo"></i> Resend Code
+                        </a>
+                    </div>
+
+                    <div class="alert alert-warning mt-3">
+                        <small>
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>Important:</strong> You must verify your email before you can log in.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-redirect after 3 seconds
+setTimeout(function() {
+    window.location.href = "{{ verification_url }}";
+}, 3000);
+</script>
+{% endblock %}

@@ -151,8 +151,18 @@ def register(request):
                     
                     if otp_result:
                         print(f"Redirecting to verify_otp for user: {user.id}")
+                        # Store user ID in session as backup
+                        request.session['pending_verification_user_id'] = user.id
                         messages.success(request, f'Account created successfully! Please check your email for the verification code. <a href="/verify-otp/{user.id}/" class="btn btn-primary">Enter Verification Code</a>')
-                        return redirect('verify_otp', user_id=user.id)
+                        try:
+                            return redirect('verify_otp', user_id=user.id)
+                        except Exception as redirect_error:
+                            print(f"Redirect failed: {str(redirect_error)}")
+                            # Fallback: render a page with the verification link
+                            return render(request, 'inventory/otp_redirect.html', {
+                                'user': user,
+                                'verification_url': f'/verify-otp/{user.id}/'
+                            })
                     else:
                         print("OTP email failed, showing error")
                         messages.error(request, 'Account created but failed to send verification code. Please contact support or try again later.')
@@ -249,6 +259,23 @@ def resend_otp(request, user_id):
         messages.error(request, 'Failed to send verification code. Please try again.')
     
     return redirect('verify_otp', user_id=user_id)
+
+def pending_verification(request):
+    """Show pending verification page for users who need to verify"""
+    user_id = request.session.get('pending_verification_user_id')
+    if user_id:
+        try:
+            user = User.objects.get(id=user_id)
+            if not user.userprofile.email_verified:
+                return render(request, 'inventory/otp_redirect.html', {
+                    'user': user,
+                    'verification_url': f'/verify-otp/{user.id}/'
+                })
+        except User.DoesNotExist:
+            pass
+    
+    messages.error(request, 'No pending verification found.')
+    return redirect('register')
 
 def resend_verification(request):
     """Resend verification email"""
