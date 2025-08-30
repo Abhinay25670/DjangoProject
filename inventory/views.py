@@ -145,13 +145,20 @@ def register(request):
             if has_email_config:
                 # Try to send OTP email
                 try:
-                    if send_otp_email(user):
-                        messages.success(request, 'Account created successfully! Please check your email for the verification code.')
+                    print(f"About to send OTP email to user: {user.id}")
+                    otp_result = send_otp_email(user)
+                    print(f"OTP email result: {otp_result}")
+                    
+                    if otp_result:
+                        print(f"Redirecting to verify_otp for user: {user.id}")
+                        messages.success(request, f'Account created successfully! Please check your email for the verification code. <a href="/verify-otp/{user.id}/" class="btn btn-primary">Enter Verification Code</a>')
                         return redirect('verify_otp', user_id=user.id)
                     else:
+                        print("OTP email failed, showing error")
                         messages.error(request, 'Account created but failed to send verification code. Please contact support or try again later.')
                         return render(request, 'inventory/register.html', {'form': form})
                 except Exception as e:
+                    print(f"Exception in registration: {str(e)}")
                     # If email fails, show error and don't activate user
                     messages.error(request, f'Account created but failed to send verification code. Please contact support or try again later.')
                     return render(request, 'inventory/register.html', {'form': form})
