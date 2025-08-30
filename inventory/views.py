@@ -49,10 +49,6 @@ def send_verification_email(user):
         plain_message = strip_tags(html_message)
         
         # Send email
-        print(f"Attempting to send verification email to {user.email}")
-        print(f"From email: {settings.DEFAULT_FROM_EMAIL}")
-        print(f"Verification URL: {full_url}")
-        
         send_mail(
             subject=subject,
             message=plain_message,
@@ -66,11 +62,7 @@ def send_verification_email(user):
         user.userprofile.email_verification_sent_at = timezone.now()
         user.userprofile.save()
         
-        print(f"Verification email sent successfully to {user.email}")
-        print(f"Email backend: {settings.EMAIL_BACKEND}")
-        
     except Exception as e:
-        print(f"Error sending verification email: {str(e)}")
         raise e  # Re-raise the exception so it can be handled by the calling function
 
 def register(request):
@@ -95,11 +87,8 @@ def register(request):
                     messages.success(request, 'Account created successfully! Please check your email to verify your account before logging in.')
                     return redirect('login')
                 except Exception as e:
-                    # Log the error for debugging
-                    print(f"Email sending failed: {str(e)}")
-                    
                     # If email fails, show error and don't activate user
-                    messages.error(request, f'Account created but failed to send verification email: {str(e)}. Please contact support or try again later.')
+                    messages.error(request, f'Account created but failed to send verification email. Please contact support or try again later.')
                     return render(request, 'inventory/register.html', {'form': form})
             else:
                 # No email configuration - show error

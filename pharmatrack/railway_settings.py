@@ -136,7 +136,6 @@ if os.environ.get('SENDGRID_API_KEY'):
     EMAIL_HOST_USER = 'apikey'
     EMAIL_HOST_PASSWORD = os.environ.get('SENDGRID_API_KEY')
     DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@pharmatrack.com')
-    print("Using SendGrid for email delivery")
 
 # Fallback to Gmail SMTP (may have network issues on Railway)
 elif os.environ.get('EMAIL_HOST_USER') and os.environ.get('EMAIL_HOST_PASSWORD'):
@@ -147,13 +146,11 @@ elif os.environ.get('EMAIL_HOST_USER') and os.environ.get('EMAIL_HOST_PASSWORD')
     EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
     EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
     DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
-    print("Using Gmail SMTP for email delivery")
 
 # No email configuration - this will cause registration to fail
 else:
-    print("WARNING: No email configuration found. Email verification will not work.")
-    print("Please set up SendGrid or Gmail SMTP for email verification to work.")
     # Don't set any email backend - let it fail gracefully
+    pass
 
 # Email verification settings
 EMAIL_VERIFICATION_TIMEOUT_HOURS = 24
