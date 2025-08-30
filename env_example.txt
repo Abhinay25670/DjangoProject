@@ -14,24 +14,21 @@ DATABASE_URL=postgresql://username:password@localhost:5432/pharmatrack
 # For SQLite (Development)
 # DATABASE_URL=sqlite:///db.sqlite3
 
-# Email Configuration
-# Option 1: SendGrid (Recommended for Railway - works better than Gmail)
+# Email Configuration - REQUIRED for proper email verification
+# Option 1: SendGrid (Recommended for Railway - most reliable)
 SENDGRID_API_KEY=your-sendgrid-api-key
 DEFAULT_FROM_EMAIL=noreply@pharmatrack.com
 
-# Option 2: Gmail SMTP (may have network issues on Railway)
+# Option 2: Gmail SMTP (fallback - may have network issues on Railway)
 EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
 EMAIL_USE_TLS=True
 EMAIL_HOST_USER=your-email@gmail.com
-EMAIL_HOST_PASSWORD=your-app-password
+EMAIL_HOST_PASSWORD=your-gmail-app-password
 DEFAULT_FROM_EMAIL=your-email@gmail.com
 
 # Base URL for email verification links (replace with your actual Railway URL)
 BASE_URL=https://your-app-name.railway.app
-
-# Disable email verification entirely (set to 'True' to disable email verification)
-DISABLE_EMAIL_VERIFICATION=False
 
 # Optional: Redis for caching
 # REDIS_URL=redis://localhost:6379/1

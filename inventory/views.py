@@ -65,46 +65,23 @@ def register(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
-            # Create user
+            # Create user but don't activate them yet
             user = form.save(commit=False)
+            user.is_active = False  # User must verify email before being active
+            user.save()
             
-            # Check if email verification is disabled
-            disable_email_verification = os.environ.get('DISABLE_EMAIL_VERIFICATION', 'False').lower() == 'true'
-            
-            # Check if we have email configuration
-            has_email_config = (
-                os.environ.get('SENDGRID_API_KEY') or 
-                (os.environ.get('EMAIL_HOST_USER') and os.environ.get('EMAIL_HOST_PASSWORD'))
-            )
-            
-            if has_email_config and not disable_email_verification:
-                # Try email verification
-                user.is_active = False  # User must verify email before being active
-                user.save()
-                
-                try:
-                    send_verification_email(user)
-                    messages.success(request, 'Account created successfully! Please check your email to verify your account before logging in.')
-                    return redirect('login')
-                except Exception as e:
-                    # Log the error for debugging
-                    print(f"Email sending failed: {str(e)}")
-                    
-                    # For any email error, activate user and show warning
-                    user.is_active = True
-                    user.userprofile.email_verified = True  # Mark as verified
-                    user.save()
-                    messages.warning(request, 'Account created successfully! However, we could not send a verification email. You can log in directly.')
-                    return redirect('login')
-            else:
-                # No email configuration - activate user immediately
-                user.is_active = True
-                user.save()
-                # Mark email as verified
-                user.userprofile.email_verified = True
-                user.userprofile.save()
-                messages.success(request, 'Account created successfully! You can now log in.')
+            # Always try to send verification email
+            try:
+                send_verification_email(user)
+                messages.success(request, 'Account created successfully! Please check your email to verify your account before logging in.')
                 return redirect('login')
+            except Exception as e:
+                # Log the error for debugging
+                print(f"Email sending failed: {str(e)}")
+                
+                # If email fails, show error and don't activate user
+                messages.error(request, f'Account created but failed to send verification email: {str(e)}. Please contact support or try again later.')
+                return render(request, 'inventory/register.html', {'form': form})
     else:
         form = UserRegistrationForm()
     return render(request, 'inventory/register.html', {'form': form})

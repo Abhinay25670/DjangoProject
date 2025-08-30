@@ -125,9 +125,9 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 
 # Email Configuration for Production
-# Try SendGrid first (works better with Railway), then Gmail, then console fallback
+# SendGrid is the most reliable option for Railway deployment
 
-# Option 1: SendGrid (Recommended for Railway)
+# Check if we have SendGrid API key (recommended for Railway)
 if os.environ.get('SENDGRID_API_KEY'):
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_HOST = 'smtp.sendgrid.net'
@@ -136,8 +136,9 @@ if os.environ.get('SENDGRID_API_KEY'):
     EMAIL_HOST_USER = 'apikey'
     EMAIL_HOST_PASSWORD = os.environ.get('SENDGRID_API_KEY')
     DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@pharmatrack.com')
+    print("Using SendGrid for email delivery")
 
-# Option 2: Gmail SMTP (may have network issues on Railway)
+# Fallback to Gmail SMTP (may have network issues on Railway)
 elif os.environ.get('EMAIL_HOST_USER') and os.environ.get('EMAIL_HOST_PASSWORD'):
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
@@ -146,18 +147,16 @@ elif os.environ.get('EMAIL_HOST_USER') and os.environ.get('EMAIL_HOST_PASSWORD')
     EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
     EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
     DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
+    print("Using Gmail SMTP for email delivery")
 
-# Option 3: Console backend for debugging (always works)
+# No email configuration - this will cause registration to fail
 else:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-    EMAIL_HOST_USER = 'debug@example.com'
-    DEFAULT_FROM_EMAIL = 'debug@example.com'
+    print("WARNING: No email configuration found. Email verification will not work.")
+    print("Please set up SendGrid or Gmail SMTP for email verification to work.")
+    # Don't set any email backend - let it fail gracefully
 
 # Email verification settings
 EMAIL_VERIFICATION_TIMEOUT_HOURS = 24
-
-# Disable email verification entirely (set to 'True' to disable)
-DISABLE_EMAIL_VERIFICATION = os.environ.get('DISABLE_EMAIL_VERIFICATION', 'False').lower() == 'true'
 
 # Base URL for email links (set this in Railway environment variables)
 BASE_URL = os.environ.get('BASE_URL', 'https://your-app-name.railway.app')
