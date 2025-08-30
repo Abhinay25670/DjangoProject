@@ -27,39 +27,46 @@ def get_or_create_user_profile(user):
 
 def send_verification_email(user):
     """Send verification email to user"""
-    subject = 'Verify your PharmaTrack account'
-    
-    # Create verification URL
-    verification_url = reverse('verify_email', kwargs={'token': user.userprofile.email_verification_token})
-    
-    # Get the base URL from settings or use the request domain
-    base_url = getattr(settings, 'BASE_URL', 'https://your-app-name.railway.app')
-    if not base_url or base_url == 'https://your-app-name.railway.app':
-        # Try to get from environment variable
-        base_url = os.environ.get('BASE_URL', 'https://your-app-name.railway.app')
-    
-    full_url = f"{base_url}{verification_url}"
-    
-    # Render email template
-    html_message = render_to_string('inventory/email/verification_email.html', {
-        'user': user,
-        'verification_url': full_url,
-    })
-    plain_message = strip_tags(html_message)
-    
-    # Send email
-    send_mail(
-        subject=subject,
-        message=plain_message,
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[user.email],
-        html_message=html_message,
-        fail_silently=False,
-    )
-    
-    # Update sent timestamp
-    user.userprofile.email_verification_sent_at = timezone.now()
-    user.userprofile.save()
+    try:
+        subject = 'Verify your PharmaTrack account'
+        
+        # Create verification URL
+        verification_url = reverse('verify_email', kwargs={'token': user.userprofile.email_verification_token})
+        
+        # Get the base URL from settings or use the request domain
+        base_url = getattr(settings, 'BASE_URL', 'https://your-app-name.railway.app')
+        if not base_url or base_url == 'https://your-app-name.railway.app':
+            # Try to get from environment variable
+            base_url = os.environ.get('BASE_URL', 'https://your-app-name.railway.app')
+        
+        full_url = f"{base_url}{verification_url}"
+        
+        # Render email template
+        html_message = render_to_string('inventory/email/verification_email.html', {
+            'user': user,
+            'verification_url': full_url,
+        })
+        plain_message = strip_tags(html_message)
+        
+        # Send email
+        send_mail(
+            subject=subject,
+            message=plain_message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            html_message=html_message,
+            fail_silently=False,
+        )
+        
+        # Update sent timestamp
+        user.userprofile.email_verification_sent_at = timezone.now()
+        user.userprofile.save()
+        
+        print(f"Verification email sent successfully to {user.email}")
+        
+    except Exception as e:
+        print(f"Error sending verification email: {str(e)}")
+        raise e  # Re-raise the exception so it can be handled by the calling function
 
 def register(request):
     if request.method == 'POST':
@@ -70,17 +77,28 @@ def register(request):
             user.is_active = False  # User must verify email before being active
             user.save()
             
-            # Always try to send verification email
-            try:
-                send_verification_email(user)
-                messages.success(request, 'Account created successfully! Please check your email to verify your account before logging in.')
-                return redirect('login')
-            except Exception as e:
-                # Log the error for debugging
-                print(f"Email sending failed: {str(e)}")
-                
-                # If email fails, show error and don't activate user
-                messages.error(request, f'Account created but failed to send verification email: {str(e)}. Please contact support or try again later.')
+            # Check if email configuration is available
+            has_email_config = (
+                os.environ.get('SENDGRID_API_KEY') or 
+                (os.environ.get('EMAIL_HOST_USER') and os.environ.get('EMAIL_HOST_PASSWORD'))
+            )
+            
+            if has_email_config:
+                # Try to send verification email
+                try:
+                    send_verification_email(user)
+                    messages.success(request, 'Account created successfully! Please check your email to verify your account before logging in.')
+                    return redirect('login')
+                except Exception as e:
+                    # Log the error for debugging
+                    print(f"Email sending failed: {str(e)}")
+                    
+                    # If email fails, show error and don't activate user
+                    messages.error(request, f'Account created but failed to send verification email: {str(e)}. Please contact support or try again later.')
+                    return render(request, 'inventory/register.html', {'form': form})
+            else:
+                # No email configuration - show error
+                messages.error(request, 'Email verification is not configured. Please contact the administrator to set up email verification.')
                 return render(request, 'inventory/register.html', {'form': form})
     else:
         form = UserRegistrationForm()
