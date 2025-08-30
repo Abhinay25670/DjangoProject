@@ -47,7 +47,7 @@ Let me create a simple test to verify email sending:
 
 Make sure your API key in Railway is correct:
 ```bash
-SENDGRID_API_KEY=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
+SENDGRID_API_KEY=SG.your-actual-sendgrid-api-key-here
 ```
 
 ### **Fix 2: Check SendGrid Sender Authentication**

@@ -67,7 +67,7 @@ BASE_URL=https://your-actual-railway-url.railway.app
 # Required for email verification
 SECRET_KEY=q5aagg@u1x-f8!^3(vpr4k)8&g53m7w=n9bp%=x!1q%2h$52a9
 DEBUG=False
-SENDGRID_API_KEY=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
+SENDGRID_API_KEY=SG.your-actual-sendgrid-api-key-here
 DEFAULT_FROM_EMAIL=abhinay02005@gmail.com
 BASE_URL=https://web-production-609ea.up.railway.app
 CSRF_TRUSTED_ORIGINS=https://web-production-609ea.up.railway.app
