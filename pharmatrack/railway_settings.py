@@ -156,6 +156,9 @@ else:
 # Email verification settings
 EMAIL_VERIFICATION_TIMEOUT_HOURS = 24
 
+# Disable email verification entirely (set to 'True' to disable)
+DISABLE_EMAIL_VERIFICATION = os.environ.get('DISABLE_EMAIL_VERIFICATION', 'False').lower() == 'true'
+
 # Base URL for email links (set this in Railway environment variables)
 BASE_URL = os.environ.get('BASE_URL', 'https://your-app-name.railway.app')
 

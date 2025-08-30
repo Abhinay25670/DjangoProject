@@ -30,6 +30,9 @@ DEFAULT_FROM_EMAIL=your-email@gmail.com
 # Base URL for email verification links (replace with your actual Railway URL)
 BASE_URL=https://your-app-name.railway.app
 
+# Disable email verification entirely (set to 'True' to disable email verification)
+DISABLE_EMAIL_VERIFICATION=False
+
 # Optional: Redis for caching
 # REDIS_URL=redis://localhost:6379/1
 
