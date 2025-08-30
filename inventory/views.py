@@ -52,17 +52,24 @@ def send_verification_email(user):
         print(f"Attempting to send email to: {user.email}")
         print(f"From email: {settings.DEFAULT_FROM_EMAIL}")
         print(f"Email backend: {settings.EMAIL_BACKEND}")
+        print(f"Email host: {settings.EMAIL_HOST}")
+        print(f"Email port: {settings.EMAIL_PORT}")
+        print(f"Email user: {settings.EMAIL_HOST_USER}")
         
-        send_mail(
-            subject=subject,
-            message=plain_message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-            html_message=html_message,
-            fail_silently=False,
-        )
-        
-        print(f"Email sent successfully to: {user.email}")
+        try:
+            send_mail(
+                subject=subject,
+                message=plain_message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[user.email],
+                html_message=html_message,
+                fail_silently=False,
+            )
+            print(f"✅ Email sent successfully to: {user.email}")
+        except Exception as email_error:
+            print(f"❌ Email sending failed: {str(email_error)}")
+            print(f"❌ Error type: {type(email_error).__name__}")
+            raise email_error
         
         # Update sent timestamp
         user.userprofile.email_verification_sent_at = timezone.now()
