@@ -11,6 +11,11 @@ class UserProfile(models.Model):
     email_verification_token = models.UUIDField(default=uuid.uuid4, editable=False)
     email_verification_sent_at = models.DateTimeField(null=True, blank=True)
     
+    # OTP fields
+    otp_code = models.CharField(max_length=6, blank=True, null=True)
+    otp_created_at = models.DateTimeField(null=True, blank=True)
+    otp_attempts = models.PositiveIntegerField(default=0)
+    
     def __str__(self):
         return f"{self.user.username}'s profile"
 

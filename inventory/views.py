@@ -16,6 +16,52 @@ from .models import Medicine, UserProfile
 from .forms import UserRegistrationForm, MedicineForm
 from .reports import MedicineReportGenerator
 from django.conf import settings
+import random
+import string
+
+def generate_otp():
+    """Generate a 6-digit OTP"""
+    return ''.join(random.choices(string.digits, k=6))
+
+def send_otp_email(user):
+    """Send OTP via email"""
+    try:
+        # Generate new OTP
+        otp = generate_otp()
+        
+        # Save OTP to user profile
+        user.userprofile.otp_code = otp
+        user.userprofile.otp_created_at = timezone.now()
+        user.userprofile.otp_attempts = 0
+        user.userprofile.save()
+        
+        # Prepare email
+        subject = 'PharmaTrack - Email Verification Code'
+        html_message = render_to_string('inventory/email/otp_email.html', {
+            'user': user,
+            'otp': otp,
+        })
+        plain_message = f"Your verification code is: {otp}\n\nThis code will expire in 10 minutes."
+        
+        # Send email
+        print(f"Sending OTP email to: {user.email}")
+        print(f"OTP: {otp}")
+        
+        send_mail(
+            subject=subject,
+            message=plain_message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            html_message=html_message,
+            fail_silently=False,
+        )
+        
+        print(f"✅ OTP email sent successfully to: {user.email}")
+        return True
+        
+    except Exception as e:
+        print(f"❌ Error sending OTP email: {str(e)}")
+        return False
 
 def get_or_create_user_profile(user):
     """Get or create UserProfile for a user"""
@@ -97,14 +143,17 @@ def register(request):
             )
             
             if has_email_config:
-                # Try to send verification email
+                # Try to send OTP email
                 try:
-                    send_verification_email(user)
-                    messages.success(request, 'Account created successfully! Please check your email to verify your account before logging in.')
-                    return redirect('login')
+                    if send_otp_email(user):
+                        messages.success(request, 'Account created successfully! Please check your email for the verification code.')
+                        return redirect('verify_otp', user_id=user.id)
+                    else:
+                        messages.error(request, 'Account created but failed to send verification code. Please contact support or try again later.')
+                        return render(request, 'inventory/register.html', {'form': form})
                 except Exception as e:
                     # If email fails, show error and don't activate user
-                    messages.error(request, f'Account created but failed to send verification email. Please contact support or try again later.')
+                    messages.error(request, f'Account created but failed to send verification code. Please contact support or try again later.')
                     return render(request, 'inventory/register.html', {'form': form})
             else:
                 # No email configuration - show error
@@ -140,6 +189,59 @@ def verify_email(request, token):
     except UserProfile.DoesNotExist:
         messages.error(request, 'Invalid verification link.')
         return redirect('login')
+
+def verify_otp(request, user_id):
+    """Verify OTP code"""
+    user = get_object_or_404(User, id=user_id)
+    
+    if request.method == 'POST':
+        otp_code = request.POST.get('otp_code', '').strip()
+        
+        if not otp_code:
+            messages.error(request, 'Please enter the verification code.')
+            return render(request, 'inventory/verify_otp.html', {'user': user})
+        
+        # Check if OTP is valid
+        if (user.userprofile.otp_code == otp_code and 
+            user.userprofile.otp_created_at and 
+            timezone.now() - user.userprofile.otp_created_at < timedelta(minutes=10)):
+            
+            # Verify user
+            user.userprofile.email_verified = True
+            user.userprofile.otp_code = None
+            user.userprofile.otp_created_at = None
+            user.userprofile.save()
+            
+            # Activate user
+            user.is_active = True
+            user.save()
+            
+            messages.success(request, 'Email verified successfully! You can now log in.')
+            return redirect('login')
+        
+        else:
+            # Increment attempts
+            user.userprofile.otp_attempts += 1
+            user.userprofile.save()
+            
+            if user.userprofile.otp_attempts >= 3:
+                messages.error(request, 'Too many failed attempts. Please register again.')
+                return redirect('register')
+            else:
+                messages.error(request, f'Invalid or expired code. {3 - user.userprofile.otp_attempts} attempts remaining.')
+    
+    return render(request, 'inventory/verify_otp.html', {'user': user})
+
+def resend_otp(request, user_id):
+    """Resend OTP code"""
+    user = get_object_or_404(User, id=user_id)
+    
+    if send_otp_email(user):
+        messages.success(request, 'New verification code sent! Please check your email.')
+    else:
+        messages.error(request, 'Failed to send verification code. Please try again.')
+    
+    return redirect('verify_otp', user_id=user_id)
 
 def resend_verification(request):
     """Resend verification email"""
