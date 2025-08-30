@@ -3,6 +3,7 @@
 ## ✅ You're Right - Email Verification is Essential!
 
 Email verification is crucial for:
+
 - **Security** - Prevents fake accounts
 - **User validation** - Ensures real email addresses
 - **Account recovery** - Enables password reset functionality
@@ -11,6 +12,7 @@ Email verification is crucial for:
 ## 🚀 Proper Solution: SendGrid Integration
 
 ### **Why SendGrid?**
+
 - ✅ **Works reliably with Railway** (no network issues)
 - ✅ **Free tier available** (100 emails/day)
 - ✅ **Professional email delivery**
@@ -65,15 +67,16 @@ BASE_URL=https://your-actual-railway-url.railway.app
 # Required for email verification
 SECRET_KEY=q5aagg@u1x-f8!^3(vpr4k)8&g53m7w=n9bp%=x!1q%2h$52a9
 DEBUG=False
-SENDGRID_API_KEY=SG.your-actual-api-key-here
-DEFAULT_FROM_EMAIL=noreply@pharmatrack.com
-BASE_URL=https://your-actual-railway-url.railway.app
-CSRF_TRUSTED_ORIGINS=https://your-actual-railway-url.railway.app
+SENDGRID_API_KEY=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
+DEFAULT_FROM_EMAIL=abhinay02005@gmail.com
+BASE_URL=https://web-production-609ea.up.railway.app
+CSRF_TRUSTED_ORIGINS=https://web-production-609ea.up.railway.app
 ```
 
 ## 🎯 How It Works Now
 
 ### **Registration Process:**
+
 1. **User fills signup form**
 2. **Account created but `is_active = False`**
 3. **Verification email sent via SendGrid**
@@ -81,6 +84,7 @@ CSRF_TRUSTED_ORIGINS=https://your-actual-railway-url.railway.app
 5. **Only then can user log in**
 
 ### **Security Features:**
+
 - ✅ **Email verification required** for all new accounts
 - ✅ **Users cannot access app** without verification
 - ✅ **Secure token-based verification**
@@ -90,12 +94,14 @@ CSRF_TRUSTED_ORIGINS=https://your-actual-railway-url.railway.app
 ## 🚀 Testing the Setup
 
 ### **Test Registration:**
+
 1. **Try signing up with a new account**
 2. **Check your email** (including spam folder)
 3. **Click the verification link**
 4. **Try logging in** - should work now
 
 ### **Check Railway Logs:**
+
 1. **Go to Railway Dashboard**
 2. **Click on your deployment**
 3. **Check logs for:**
@@ -166,6 +172,7 @@ Your PharmaTrack application now has:
 - ✅ **Production-ready security**
 
 **Next Steps:**
+
 1. Set up SendGrid account
 2. Add API key to Railway
 3. Test registration process

@@ -49,6 +49,10 @@ def send_verification_email(user):
         plain_message = strip_tags(html_message)
         
         # Send email
+        print(f"Attempting to send verification email to {user.email}")
+        print(f"From email: {settings.DEFAULT_FROM_EMAIL}")
+        print(f"Verification URL: {full_url}")
+        
         send_mail(
             subject=subject,
             message=plain_message,
@@ -63,6 +67,7 @@ def send_verification_email(user):
         user.userprofile.save()
         
         print(f"Verification email sent successfully to {user.email}")
+        print(f"Email backend: {settings.EMAIL_BACKEND}")
         
     except Exception as e:
         print(f"Error sending verification email: {str(e)}")
