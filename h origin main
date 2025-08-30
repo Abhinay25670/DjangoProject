@@ -1,0 +1,5 @@
+[33mb1e4fef[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m Clean up project and focus on email verification
+[33m97fae32[m Remove SendGrid API key from documentation for security
+[33m2ecbccf[m Add email delivery debugging and troubleshooting
+[33m987bf58[m[33m ([m[1;31morigin/main[m[33m)[m Fix signup crash issue with better error handling
+[33m7165470[m Implement proper email verification system with SendGrid

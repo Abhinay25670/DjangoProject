@@ -136,6 +136,7 @@ if os.environ.get('SENDGRID_API_KEY'):
     EMAIL_HOST_USER = 'apikey'
     EMAIL_HOST_PASSWORD = os.environ.get('SENDGRID_API_KEY')
     DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@pharmatrack.com')
+    print(f"SendGrid configured - From: {DEFAULT_FROM_EMAIL}")
 
 # Fallback to Gmail SMTP (may have network issues on Railway)
 elif os.environ.get('EMAIL_HOST_USER') and os.environ.get('EMAIL_HOST_PASSWORD'):
@@ -146,9 +147,14 @@ elif os.environ.get('EMAIL_HOST_USER') and os.environ.get('EMAIL_HOST_PASSWORD')
     EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
     EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
     DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
+    print(f"Gmail SMTP configured - From: {DEFAULT_FROM_EMAIL}")
 
 # No email configuration - this will cause registration to fail
 else:
+    print("WARNING: No email configuration found!")
+    print(f"SENDGRID_API_KEY: {'Set' if os.environ.get('SENDGRID_API_KEY') else 'Not set'}")
+    print(f"EMAIL_HOST_USER: {'Set' if os.environ.get('EMAIL_HOST_USER') else 'Not set'}")
+    print(f"EMAIL_HOST_PASSWORD: {'Set' if os.environ.get('EMAIL_HOST_PASSWORD') else 'Not set'}")
     # Don't set any email backend - let it fail gracefully
     pass
 

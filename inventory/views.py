@@ -49,6 +49,10 @@ def send_verification_email(user):
         plain_message = strip_tags(html_message)
         
         # Send email
+        print(f"Attempting to send email to: {user.email}")
+        print(f"From email: {settings.DEFAULT_FROM_EMAIL}")
+        print(f"Email backend: {settings.EMAIL_BACKEND}")
+        
         send_mail(
             subject=subject,
             message=plain_message,
@@ -57,6 +61,8 @@ def send_verification_email(user):
             html_message=html_message,
             fail_silently=False,
         )
+        
+        print(f"Email sent successfully to: {user.email}")
         
         # Update sent timestamp
         user.userprofile.email_verification_sent_at = timezone.now()
